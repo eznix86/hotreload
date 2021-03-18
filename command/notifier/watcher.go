@@ -33,7 +33,6 @@ func (n *Notifier) AddListener(l Listener)  {
 
 func (n *Notifier) Start() {
 	w := watcher.New()
-
 	// SetMaxEvents to 1 to allow at most 1 event's to be received
 	// on the Event channel per watching cycle.
 	//
@@ -50,7 +49,6 @@ func (n *Notifier) Start() {
 				fmt.Println(event) // Print the event's info.
 				if n.Listener != nil {
 					n.Listener.Reload()
-					fmt.Println("Listener called")
 				}
 			case err := <-w.Error:
 				log.Fatalln(err)
@@ -60,7 +58,7 @@ func (n *Notifier) Start() {
 		}
 	}()
 
-	// Watch test_folder recursively for changes.
+	// Watch folders recursively for changes.
 	for _, path := range n.WatchPaths {
 		if err := w.AddRecursive(path); err != nil {
 			log.Fatalln(err)

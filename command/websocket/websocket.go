@@ -18,7 +18,6 @@ type HotReloadHandler struct {
 }
 
 func (h *HotReloadHandler) Reload()  {
-	h.reload = make(chan bool)
 	h.reload <- true
 }
 
@@ -65,6 +64,7 @@ func (h *HotReloadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *HotReloadHandler) Serve() {
+	h.reload = make(chan bool)
 	if err := http.ListenAndServe(":9023", h); err != nil {
 		log.Fatal(err)
 	}

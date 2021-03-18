@@ -8,9 +8,6 @@ import (
 	"os"
 )
 
-
-
-
 func main() {
 	var config, err = args.Get()
 
@@ -22,9 +19,9 @@ func main() {
 
 	var changeNotifier = notifier.New(config.ReloadTimeInMilliseconds, config.Paths)
 
-	changeNotifier.Start()
 	hotReloadHandler := websocket.HotReloadHandler{}
-
 	changeNotifier.AddListener(&hotReloadHandler)
+
+	changeNotifier.Start()
 	hotReloadHandler.Serve()
 }
