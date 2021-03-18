@@ -1,7 +1,6 @@
 package websocket
 
 import (
-	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -14,35 +13,14 @@ var (
 )
 
 type HotReloadHandler struct {
-	reload chan bool
+	clients []*websocket.Conn
 }
 
 func (h *HotReloadHandler) Reload()  {
-	h.reload <- true
-}
-
-func (h *HotReloadHandler) reader(ws *websocket.Conn) {
-	defer ws.Close()
-	for {
-		messageType, p, err := ws.ReadMessage()
-		fmt.Println(err)
-		fmt.Println(messageType)
-		fmt.Println(string(p))
-		fmt.Println()
-		if err != nil {
-			break
-		}
-	}
-}
-
-func (h *HotReloadHandler) writer(ws *websocket.Conn) {
-	for {
-		select {
-		case <- h.reload:
-			var p []byte
-			if err := ws.WriteMessage(websocket.TextMessage, p); err != nil {
-				return
-			}
+	for _, ws := range h.clients {
+		var p []byte
+		if err := ws.WriteMessage(websocket.TextMessage, p); err != nil {
+		   return
 		}
 	}
 }
@@ -58,13 +36,11 @@ func (h *HotReloadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		go h.writer(ws)
-		h.reader(ws)
+		h.clients = append(h.clients, ws)
 	}
 }
 
 func (h *HotReloadHandler) Serve() {
-	h.reload = make(chan bool)
 	if err := http.ListenAndServe(":9023", h); err != nil {
 		log.Fatal(err)
 	}
