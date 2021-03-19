@@ -1,7 +1,6 @@
 package notifier
 
 import (
-	"fmt"
 	"github.com/radovskyb/watcher"
 	"log"
 	"time"
@@ -15,15 +14,17 @@ type Notifier struct {
 	ReloadTime time.Duration
 	WatchPaths []string
 	Listener  Listener
+	Verbose  bool
 }
 
 func New(reloadTime time.Duration, watchPaths []string) *Notifier {
-	fmt.Printf("Reload time set to %v\n", reloadTime)
-	fmt.Printf("Watch Paths are %v\n", watchPaths)
+	log.Printf("Reload time set to %v\n", reloadTime)
+	log.Printf("Watch Paths are %v\n", watchPaths)
 	return &Notifier {
 		reloadTime,
 		watchPaths,
 		nil,
+		false,
 	}
 }
 
@@ -46,7 +47,9 @@ func (n *Notifier) Start() {
 		for {
 			select {
 			case event := <-w.Event:
-				fmt.Println(event) // Print the event's info.
+				if n.Verbose {
+					log.Println(event) // Print the event's info.
+				}
 				if n.Listener != nil {
 					n.Listener.Reload()
 				}
@@ -69,10 +72,12 @@ func (n *Notifier) Start() {
 	// Print a list of all of the files and folders currently
 	// being watched and their paths.
 	for path, f := range w.WatchedFiles() {
-		fmt.Printf("%s: %s\n", path, f.Name())
+		if n.Verbose {
+			log.Printf("%s: %s\n", path, f.Name())
+		}
 	}
 
-	fmt.Println()
+	log.Println()
 
 
 	go func() {

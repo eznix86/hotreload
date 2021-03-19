@@ -1,7 +1,6 @@
 package websocket
 
 import (
-	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
 )
@@ -13,10 +12,10 @@ type Client struct {
 
 func (c *Client) watchConnection()  {
 	defer func() {
-		delete(c.handler.clients, c)
-		fmt.Println("Client disconnected !")
-		fmt.Printf("Remaining clients: %d", len(c.handler.clients))
-		fmt.Println()
+		delete(c.handler.Clients, c)
+		log.Println("Client disconnected !")
+		log.Printf("Remaining Clients: %d", len(c.handler.Clients))
+		log.Println()
 		c.conn.Close()
 	}()
 

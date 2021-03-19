@@ -15,11 +15,12 @@ var (
 )
 
 type HotReloadHandler struct {
-	clients map[*Client] bool
+	Clients    map[*Client] bool
+	ServerPort int
 }
 
 func (h *HotReloadHandler) Reload()  {
-	for client, _ := range h.clients {
+	for client, _ := range h.Clients {
 		var p []byte
 		if err := client.conn.WriteMessage(websocket.TextMessage, p); err != nil {
 		   return
@@ -38,18 +39,20 @@ func (h *HotReloadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		c := Client{conn: ws, handler: h}
-		h.clients[&c] = true
+		h.Clients[&c] = true
 		go c.watchConnection()
-		fmt.Println()
-		fmt.Println("New Client !")
-		fmt.Printf("Total clients: %d", len(h.clients))
-		fmt.Println()
+		log.Println()
+		log.Println("New Client !")
+		log.Printf("Total Clients: %d", len(h.Clients))
+		log.Println()
 	}
 }
 
 func (h *HotReloadHandler) Serve() {
-	h.clients = make(map[*Client]bool)
-	if err := http.ListenAndServe(":9023", h); err != nil {
+	h.Clients = make(map[*Client]bool)
+	port := fmt.Sprintf(":%d", h.ServerPort)
+	log.Println(fmt.Sprintf("Listening to port 0.0.0.0%s", port))
+	if err := http.ListenAndServe(port, h); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"github.com/theArtechnology/hotreload/args"
 	"github.com/theArtechnology/hotreload/notifier"
 	"github.com/theArtechnology/hotreload/websocket"
+	"log"
 	"os"
 )
 
@@ -12,8 +12,8 @@ func main() {
 	var config, err = args.Get()
 
 	if err != nil {
-		fmt.Println()
-		fmt.Println(err)
+		log.Println()
+		log.Println(err)
 		os.Exit(1)
 	}
 
@@ -21,6 +21,9 @@ func main() {
 
 	hotReloadHandler := websocket.HotReloadHandler{}
 	changeNotifier.AddListener(&hotReloadHandler)
+
+	changeNotifier.Verbose = config.Verbose
+	hotReloadHandler.ServerPort = config.ReloadPort
 
 	changeNotifier.Start()
 	hotReloadHandler.Serve()

@@ -9,6 +9,7 @@ import (
 )
 
 const ReloadTime = 1500
+const DefaultPort = 9023
 
 type pathList []string
 
@@ -24,6 +25,8 @@ func (p *pathList) Set(value string) error {
 type Args struct {
 	Paths pathList
 	ReloadTimeInMilliseconds time.Duration
+	ReloadPort int
+	Verbose bool
 }
 
 func Get() (*Args, error) {
@@ -32,6 +35,8 @@ func Get() (*Args, error) {
 
 	flag.Var(&config.Paths, "path", "Paths to watch file changes\n--path /to/folder [--path /to/folder]")
 	var reload = flag.Int("duration", ReloadTime, "Duration after which page will reload in ms")
+	var reloadPort = flag.Int("port", DefaultPort, "Default port to listen for reload requests")
+	var verbose = flag.Bool("verbose", false, "verbose")
 
 	if len(os.Args) < 2 {
 		flag.PrintDefaults()
@@ -46,6 +51,8 @@ func Get() (*Args, error) {
 
 
 	config.ReloadTimeInMilliseconds = time.Duration(*reload)
+	config.ReloadPort = *reloadPort
+	config.Verbose = *verbose
 
 	return &config, nil
 }
